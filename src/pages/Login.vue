@@ -8,16 +8,18 @@
       </q-card-section>
 
       <q-card-section>
-        <q-form @submit.prevent="handleLogin" class="q-gutter-md">
+        <q-form ref="loginFormRef" @submit.prevent="handleLogin" class="q-gutter-md">
           <q-input
-            v-model="loginForm.email"
-            label="Email"
-            type="email"
+            v-model="loginForm.userField"
+            :label="loginForm.isAdmin ? 'Username' : 'Email'"
+            :type="loginForm.isAdmin ? 'text' : 'email'"
             filled
-            :rules="[val => !!val || 'Email is required']"
-            icon="email"
+            :rules="loginForm.isAdmin
+              ? [val => !!val || 'Username is required']
+              : [val => !!val || 'Email is required']"
+            :icon="loginForm.isAdmin ? 'account_circle' : 'email'"
           />
-          
+
           <q-input
             v-model="loginForm.password"
             label="Lozinka"
@@ -35,6 +37,12 @@
             </template>
           </q-input>
 
+          <q-toggle
+            v-model="loginForm.isAdmin"
+            label="Prijava kao administrator"
+            color="primary"
+          />
+
           <q-btn
             type="submit"
             label="Login"
@@ -49,10 +57,10 @@
       <q-card-section class="text-center">
         <div class="text-caption text-grey-6">
           Nemate profil?
-          <q-btn 
-            flat 
-            no-caps 
-            color="primary" 
+          <q-btn
+            flat
+            no-caps
+            color="primary"
             label="Registrirajte se"
             @click="$router.push('/register')"
           />
@@ -73,35 +81,42 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const loginForm = ref({
-  email: '',
-  password: ''
+  userField: '',   // email ili username
+  password: '',
+  isAdmin: false
 })
 
 const showPassword = ref(false)
+const loginFormRef = ref(null)
 
 async function handleLogin() {
-  event.preventDefault();
-  if (loginForm.value.email && loginForm.value.password) {
-    const result = await authStore.login(loginForm.value)
-    
-    if (result.success) {
-      $q.notify({
-        type: 'positive',
-        message: 'Login successful!',
-        position: 'top'
-      })
-      router.push('/')
-    } else {
-      $q.notify({
-        type: 'negative',
-        message: result.error || 'Login failed',
-        position: 'top'
-      })
-    }
+  const valid = loginFormRef.value.validate()
+  if (!valid) {
+    $q.notify({
+      type: 'negative',
+      message: 'Molimo ispunite sva polja ispravno',
+      position: 'top'
+    })
+    return
+  }
+
+  const payload = loginForm.value.isAdmin
+    ? { username: loginForm.value.userField, password: loginForm.value.password, isAdmin: true }
+    : { email: loginForm.value.userField, password: loginForm.value.password, isAdmin: false }
+
+  const result = await authStore.login(payload)
+
+  if (result.success) {
+    $q.notify({
+      type: 'positive',
+      message: 'Login uspješan!',
+      position: 'top'
+    })
+    router.push('/')
   } else {
     $q.notify({
       type: 'negative',
-      message: 'Please fill in all fields',
+      message: result.error || 'Greška prilikom prijave',
       position: 'top'
     })
   }

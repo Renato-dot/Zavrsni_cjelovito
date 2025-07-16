@@ -43,7 +43,7 @@ const placanjaRoutes = require('./routes/placanja');
 const rezervacijeRoutes = require('./routes/rezervacije');
 const stavkeRoutes = require('./routes/stavke');
 const tereniRoutes = require('./routes/tereni');
-const adminRoutes = require("./admin");
+const adminRoutes = require("./routes/admin");
 
 // Use routes
 app.use('/api/artikli', artikliRoutes);
@@ -54,7 +54,7 @@ app.use('/api/placanja', placanjaRoutes);
 app.use('/api/rezervacije', rezervacijeRoutes);
 app.use('/api/stavke', stavkeRoutes);
 app.use('/api/tereni', tereniRoutes);
-app.use("/api/admins", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

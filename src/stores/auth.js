@@ -11,12 +11,28 @@ export const useAuthStore = defineStore("auth", () => {
   async function login(credentials) {
     isLoading.value = true;
     try {
-      const response = await api.post("/korisnik/login", {
-        email_korisnika: credentials.email,
-        lozinka: credentials.password,
-      });
+      let endpoint, payload;
 
-      user.value = response.data.korisnik || response.data.user;
+      if (credentials.isAdmin) {
+        // Administrator login
+        endpoint = "/admin/login";
+        payload = {
+          username: credentials.username, // koristi se kao username za admina
+          password: credentials.password,
+        };
+      } else {
+        // Korisnik login
+        endpoint = "/korisnik/login";
+        payload = {
+          email_korisnika: credentials.email,
+          lozinka: credentials.password,
+        };
+      }
+
+      const response = await api.post(endpoint, payload);
+
+      user.value =
+        response.data.korisnik || response.data.user || response.data;
 
       if (user.value) {
         localStorage.setItem("user", JSON.stringify(user.value));
@@ -72,7 +88,7 @@ export const useAuthStore = defineStore("auth", () => {
   function logout() {
     user.value = null;
     localStorage.removeItem("user");
-    // Opcionalno: možeš pozvati i backend /logout endpoint ako postoji
+    // Opcionalno: možeš dodati poziv prema /logout endpointu ako koristiš sesije
   }
 
   function initializeAuth() {
