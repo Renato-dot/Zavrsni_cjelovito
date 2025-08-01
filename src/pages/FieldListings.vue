@@ -154,26 +154,37 @@ function viewDetails(field) {
 
 // Poziv rezervacije
 function bookField(field) {
-  const korisnik = JSON.parse(localStorage.getItem('user'))
-  const datum = new Date().toISOString().split('T')[0]
-
-  if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
+  const storedUser = localStorage.getItem('user')
+  if (!storedUser) {
     $q.notify({
       type: 'negative',
-      message: 'Niste prijavljeni ili nedostaju podaci korisnika',
+      message: 'Niste prijavljeni. Molimo prijavite se.',
+      position: 'top'
+    })
+    return
+  }
+
+  const korisnik = JSON.parse(storedUser)
+  const datum = new Date().toISOString().split('T')[0]
+
+  console.log('User data from localStorage:', korisnik)
+
+  if (!korisnik) {
+    $q.notify({
+      type: 'negative',
+      message: 'Niste prijavljeni. Molimo prijavite se.',
       position: 'top'
     })
     return
   }
 
   const payload = {
-    ime_korisnika: korisnik.ime_korisnika,
-    prezime_korisnika: korisnik.prezime_korisnika,
     Naziv: field.name,
     datum_iznajmljivanja: datum
   }
 
   console.log('Šaljem payload:', payload)
+  console.log('Session korisnik should be available on backend')
 
   api.post('/rezervacije', payload, { withCredentials: true })
     .then(() => {
@@ -182,12 +193,14 @@ function bookField(field) {
         message: `Rezervacija za ${field.name} uspješna!`,
         position: 'top'
       })
+      showDetails.value = false
     })
     .catch(err => {
       console.error('Rezervacija greška:', err)
+      console.error('Error response:', err.response?.data)
       $q.notify({
         type: 'negative',
-        message: 'Greška pri rezervaciji.',
+        message: err.response?.data?.error || 'Greška pri rezervaciji.',
         position: 'top'
       })
     })
