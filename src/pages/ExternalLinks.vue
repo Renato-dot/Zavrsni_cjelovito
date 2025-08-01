@@ -1,8 +1,8 @@
 <template>
   <q-page class="q-pa-md">
     <div class="text-center q-mb-lg">
-      <h1 class="text-h3 text-secondary">External Sport Resources</h1>
-      <p class="text-h6 text-grey-7">Discover partner facilities and sport-related websites</p>
+      <h1 class="text-h3 text-secondary">Linkovi naših partnera</h1>
+      <p class="text-h6 text-grey-7">Istražite stranice naših partnera i nađite ponudu baš za sebe</p>
     </div>
 
     <div class="row q-gutter-md">
@@ -27,7 +27,7 @@
           <q-btn 
             flat 
             color="secondary" 
-            label="Visit Site"
+            label="Posjetite stranicu"
             icon="launch"
             @click.stop="openExternalLink(link.url)"
           />
@@ -38,11 +38,11 @@
     <q-dialog v-model="showLinkDialog" persistent>
       <q-card style="min-width: 400px">
         <q-card-section>
-          <div class="text-h6">External Link</div>
+          <div class="text-h6">Vanjski linkovi</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p>You're about to visit an external website. Continue?</p>
+          <p>Napuštate stranicu. Želite li nastaviti?</p>
           <p class="text-primary">{{ selectedUrl }}</p>
         </q-card-section>
 
@@ -71,16 +71,16 @@ const externalLinks = ref([
   {
     id: 1,
     name: 'SportCenter Pro',
-    description: 'Professional sports facility management',
+    description: 'Profesionalna ustanova za održavanje terena',
     url: 'https://www.sportcenter.com',
     icon: 'sports_soccer',
     color: 'primary',
-    category: 'Facility'
+    category: 'Ustanova'
   },
   {
     id: 2,
-    name: 'Athletic Fields Network',
-    description: 'Connect with sports fields nationwide',
+    name: 'Tereni za trčanje',
+    description: 'Tereni za trčanje diljem države',
     url: 'https://www.athleticfields.net',
     icon: 'sports_tennis',
     color: 'secondary',
@@ -88,57 +88,57 @@ const externalLinks = ref([
   },
   {
     id: 3,
-    name: 'SwimClub Central',
-    description: 'Premier swimming facilities directory',
+    name: 'Plivački klub',
+    description: 'Najbolji plivački tereni',
     url: 'https://www.swimclub.com',
     icon: 'pool',
     color: 'info',
-    category: 'Facility'
+    category: 'Ustanova'
   },
   {
     id: 4,
-    name: 'Basketball Courts USA',
-    description: 'Find basketball courts across America',
+    name: 'Košarkaški tereni',
+    description: 'Najbolji košarkški tereni u lijepoj našoj',
     url: 'https://www.basketballcourts.usa',
     icon: 'sports_basketball',
     color: 'orange',
-    category: 'Directory'
+    category: 'Multifunkcionalno'
   },
   {
     id: 5,
-    name: 'Tennis World',
-    description: 'Global tennis court booking platform',
+    name: 'Svijet tenisa',
+    description: 'Široki izbor teniskih terena',
     url: 'https://www.tennisworld.com',
     icon: 'sports_tennis',
     color: 'positive',
-    category: 'Platform'
+    category: 'Platforma'
   },
   {
     id: 6,
-    name: 'Volleyball Arena',
-    description: 'Beach and indoor volleyball facilities',
+    name: 'Odbojkaška arena',
+    description: 'Odbojka na plaži ili u dvorani? Mi imamo sve',
     url: 'https://www.volleyballarena.com',
     icon: 'sports_volleyball',
     color: 'warning',
-    category: 'Facility'
+    category: 'Ustanova'
   },
   {
     id: 7,
-    name: 'Sports Equipment Rental',
-    description: 'Rent sports equipment for your game',
+    name: 'Iznajmljivanje opreme',
+    description: 'Iznajmite potrebnu opremu',
     url: 'https://www.sportsequipment.com',
     icon: 'sports_handball',
     color: 'negative',
-    category: 'Service'
+    category: 'Usluga'
   },
   {
     id: 8,
-    name: 'Field Maintenance Pro',
-    description: 'Professional field maintenance services',
+    name: 'Održavanje terena',
+    description: 'Profesionalna usluga održavanja terena',
     url: 'https://www.fieldmaintenance.com',
     icon: 'grass',
     color: 'teal',
-    category: 'Service'
+    category: 'Usluga'
   }
 ])
 
@@ -152,7 +152,7 @@ function confirmExternalLink() {
   showLinkDialog.value = false
   $q.notify({
     type: 'info',
-    message: 'Opening external link...',
+    message: 'Otvaranje linka...',
     position: 'top'
   })
 }

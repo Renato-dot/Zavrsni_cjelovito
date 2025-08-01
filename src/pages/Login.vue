@@ -8,24 +8,31 @@
       </q-card-section>
 
       <q-card-section>
-        <q-form ref="loginFormRef" @submit.prevent="handleLogin" class="q-gutter-md">
+        <q-form @submit.prevent="handleLogin" class="q-gutter-md" ref="formRef">
           <q-input
-            v-model="loginForm.userField"
-            :label="loginForm.isAdmin ? 'Username' : 'Email'"
-            :type="loginForm.isAdmin ? 'text' : 'email'"
+            v-if="!loginForm.isAdmin"
+            v-model="loginForm.email"
+            label="Email"
+            type="email"
             filled
-            :rules="loginForm.isAdmin
-              ? [val => !!val || 'Username is required']
-              : [val => !!val || 'Email is required']"
-            :icon="loginForm.isAdmin ? 'account_circle' : 'email'"
+            :rules="[val => !!val || 'Email je obavezan']"
+            icon="email"
+          />
+          <q-input
+            v-else
+            v-model="loginForm.username"
+            label="Korisničko ime"
+            filled
+            :rules="[val => !!val || 'Korisničko ime je obavezno']"
+            icon="person"
           />
 
           <q-input
             v-model="loginForm.password"
-            label="Lozinka"
             :type="showPassword ? 'text' : 'password'"
+            label="Lozinka"
             filled
-            :rules="[val => !!val || 'Password is required']"
+            :rules="[val => !!val || 'Lozinka je obavezna']"
             icon="lock"
           >
             <template v-slot:append>
@@ -57,13 +64,7 @@
       <q-card-section class="text-center">
         <div class="text-caption text-grey-6">
           Nemate profil?
-          <q-btn
-            flat
-            no-caps
-            color="primary"
-            label="Registrirajte se"
-            @click="$router.push('/register')"
-          />
+          <q-btn flat no-caps color="primary" label="Registrirajte se" @click="$router.push('/register')" />
         </div>
       </q-card-section>
     </q-card>
@@ -71,54 +72,56 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { ref } from "vue";
+import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
-const $q = useQuasar()
-const router = useRouter()
-const authStore = useAuthStore()
+const $q = useQuasar();
+const router = useRouter();
+const authStore = useAuthStore();
+
+const formRef = ref(null);
 
 const loginForm = ref({
-  userField: '',   // email ili username
-  password: '',
-  isAdmin: false
-})
+  email: "",
+  username: "",
+  password: "",
+  isAdmin: false,
+});
 
-const showPassword = ref(false)
-const loginFormRef = ref(null)
+const showPassword = ref(false);
 
 async function handleLogin() {
-  const valid = loginFormRef.value.validate()
-  if (!valid) {
+  if (formRef.value && !formRef.value.validate()) {
     $q.notify({
-      type: 'negative',
-      message: 'Molimo ispunite sva polja ispravno',
-      position: 'top'
-    })
-    return
+      type: "negative",
+      message: "Molimo ispunite sva polja ispravno",
+      position: "top",
+    });
+    return;
   }
 
-  const payload = loginForm.value.isAdmin
-    ? { username: loginForm.value.userField, password: loginForm.value.password, isAdmin: true }
-    : { email: loginForm.value.userField, password: loginForm.value.password, isAdmin: false }
-
-  const result = await authStore.login(payload)
+  const result = await authStore.login(loginForm.value);
 
   if (result.success) {
     $q.notify({
-      type: 'positive',
-      message: 'Login uspješan!',
-      position: 'top'
-    })
-    router.push('/')
+      type: "positive",
+      message: "Login uspješan!",
+      position: "top",
+    });
+
+    if (loginForm.value.isAdmin) {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/");
+    }
   } else {
     $q.notify({
-      type: 'negative',
-      message: result.error || 'Greška prilikom prijave',
-      position: 'top'
-    })
+      type: "negative",
+      message: result.error || "Greška prilikom prijave",
+      position: "top",
+    });
   }
 }
 </script>

@@ -1,14 +1,14 @@
 <template>
   <q-page class="q-pa-md">
     <div class="text-center q-mb-lg">
-      <h1 class="text-h3 text-primary">Available Sport Fields</h1>
-      <p class="text-h6 text-grey-7">Choose from our selection of premium sport facilities</p>
+      <h1 class="text-h3 text-primary">Dostupni tereni</h1>
+      <p class="text-h6 text-grey-7">Odaberite jedan od naših sportskih terena</p>
     </div>
 
     <div class="row q-gutter-md">
       <div v-if="loading" class="col-12 text-center">
         <q-spinner-dots size="3rem" color="primary" />
-        <div class="text-h6 q-mt-md">Loading sport fields...</div>
+        <div class="text-h6 q-mt-md">Učitavanje terena...</div>
       </div>
       
       <q-card 
@@ -25,20 +25,20 @@
         <q-card-section>
           <div class="text-h6 text-primary">{{ field.name }}</div>
           <div class="text-caption text-grey-6 q-mb-sm">{{ field.location }}</div>
-          <div class="text-body2">{{ field.description }}</div>
+          <div class="text-body2">Radno vrijeme: {{ field.workingHours }}</div>
         </q-card-section>
         
         <q-card-section class="q-pt-none">
           <div class="row items-center">
             <div class="col">
               <q-chip 
-                :color="field.available ? 'positive' : 'negative'"
+                color="positive"
                 text-color="white"
-                :label="field.available ? 'Available' : 'Booked'"
+                label="Dostupan"
               />
             </div>
             <div class="col-auto">
-              <span class="text-h6 text-primary">${{ field.price }}/hr</span>
+              <span class="text-h6 text-primary">{{ field.price }}€ / h</span>
             </div>
           </div>
         </q-card-section>
@@ -47,19 +47,19 @@
           <q-btn 
             flat 
             color="primary" 
-            label="View Details"
+            label="Detalji"
             @click="viewDetails(field)"
           />
           <q-btn 
             color="primary" 
-            label="Book Now"
-            :disable="!field.available"
+            label="Rezerviraj"
             @click="bookField(field)"
           />
         </q-card-actions>
       </q-card>
     </div>
 
+    <!-- MODAL -->
     <q-dialog v-model="showDetails" persistent>
       <q-card style="min-width: 400px" v-if="selectedField">
         <q-card-section>
@@ -67,19 +67,17 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p><strong>Location:</strong> {{ selectedField.location }}</p>
-          <p><strong>Sport Type:</strong> {{ selectedField.sport }}</p>
-          <p><strong>Capacity:</strong> {{ selectedField.capacity }} players</p>
-          <p><strong>Features:</strong> {{ selectedField.features }}</p>
-          <p><strong>Price:</strong> ${{ selectedField.price }} per hour</p>
+          <p><strong>Lokacija:</strong> {{ selectedField.location }}</p>
+          <p><strong>Radno vrijeme:</strong> {{ selectedField.workingHours }}</p>
+          <p><strong>Cijena:</strong> {{ selectedField.price }} € / sat</p>
+          <p><strong>Oprema:</strong> {{ selectedField.features }}</p>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" @click="showDetails = false" />
+          <q-btn flat label="Zatvori" color="primary" @click="showDetails = false" />
           <q-btn 
-            label="Book Now" 
+            label="Rezerviraj" 
             color="primary"
-            :disable="!selectedField.available"
             @click="bookField(selectedField)"
           />
         </q-card-actions>
@@ -92,6 +90,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import api from '../services/api'
+import axios from 'axios'
 
 const $q = useQuasar()
 const tereni = ref([])
@@ -99,35 +98,35 @@ const loading = ref(false)
 const showDetails = ref(false)
 const selectedField = ref(null)
 
-// Transform tereni data to match the UI format
+// Transformacija podataka iz baze
 const fields = computed(() => {
   return tereni.value.map(teren => ({
     id: teren.Sifra_terena,
-    name: teren.Naziv_terena || 'Sport Field',
-    location: teren.Lokacija || 'Unknown Location',
-    sport: teren.Tip_sporta || 'General',
-    description: teren.Opis || 'Sport field available for booking',
-    price: teren.Cijena_po_satu || 0,
-    available: teren.Dostupnost !== false,
-    capacity: teren.Kapacitet || 0,
-    features: teren.Karakteristike || 'Standard features',
-    image: teren.Slika || getDefaultImage(teren.Tip_sporta)
+    name: teren.Naziv || 'Nepoznat teren',
+    location: teren.Lokacija || 'Nepoznata lokacija',
+    workingHours: teren.Radno_vrijeme || 'N/A',
+    price: teren.cijena || 0,
+    available: true,
+    features: 'Standardna oprema',
+    image: getDefaultImage(teren.Naziv)
   }))
 })
 
-// Get default image based on sport type
-function getDefaultImage(sportType) {
-  const imageMap = {
-    'Soccer': 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400',
-    'Basketball': 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400',
-    'Tennis': 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&cs=tinysrgb&w=400',
-    'Swimming': 'https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg?auto=compress&cs=tinysrgb&w=400',
-    'Volleyball': 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400'
+// Slike po vrsti naziva
+function getDefaultImage(name) {
+  if (!name) return fallback
+  const map = {
+    'Nogomet': 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Košarka': 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Tenis': 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Plivanje': 'https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg?auto=compress&cs=tinysrgb&w=400'
   }
-  return imageMap[sportType] || 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400'
+  return map[name] || fallback
 }
 
-// Fetch tereni from API
+const fallback = 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400'
+
+// Dohvat podataka
 async function fetchTereni() {
   loading.value = true
   try {
@@ -136,10 +135,10 @@ async function fetchTereni() {
   } catch (error) {
     $q.notify({
       type: 'negative',
-      message: 'Failed to load sport fields',
+      message: 'Greška pri dohvaćanju terena',
       position: 'top'
     })
-    console.error('Error fetching tereni:', error)
+    console.error('Greška:', error)
   } finally {
     loading.value = false
   }
@@ -154,14 +153,48 @@ function viewDetails(field) {
   showDetails.value = true
 }
 
+// Poziv rezervacije
 function bookField(field) {
-  $q.notify({
-    type: 'positive',
-    message: `Booking request sent for ${field.name}!`,
-    position: 'top'
-  })
-  showDetails.value = false
+  const korisnik = JSON.parse(localStorage.getItem('korisnik'))
+  const datum = new Date().toISOString().split('T')[0]
+
+  if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
+    $q.notify({
+      type: 'negative',
+      message: 'Niste prijavljeni ili nedostaju podaci korisnika',
+      position: 'top'
+    })
+    return
+  }
+
+  const payload = {
+    ime_korisnika: korisnik.ime_korisnika,
+    prezime_korisnika: korisnik.prezime_korisnika,
+    Naziv: field.name,
+    datum_iznajmljivanja: datum
+  }
+
+  console.log('Šaljem payload:', payload)
+
+  api.post('/rezervacije', payload, { withCredentials: true })
+    .then(() => {
+      $q.notify({
+        type: 'positive',
+        message: `Rezervacija za ${field.name} uspješna!`,
+        position: 'top'
+      })
+    })
+    .catch(err => {
+      console.error('Rezervacija greška:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Greška pri rezervaciji.',
+        position: 'top'
+      })
+    })
 }
+
+
 </script>
 
 <style scoped>

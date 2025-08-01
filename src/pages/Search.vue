@@ -1,15 +1,15 @@
 <template>
   <q-page class="q-pa-md">
     <div class="text-center q-mb-lg">
-      <h1 class="text-h3 text-primary">Search</h1>
-      <p class="text-h6 text-grey-7">Find sport fields and external resources</p>
+      <h1 class="text-h3 text-primary">Pretraga</h1>
+      <p class="text-h6 text-grey-7">Upišite traženi pojam</p>
     </div>
 
     <div class="row justify-center q-mb-lg">
       <div class="col-md-8 col-12">
         <q-input
           v-model="searchQuery"
-          label="Search fields and resources..."
+          label="Tražite terene i resurse..."
           filled
           clearable
           @input="performSearch"

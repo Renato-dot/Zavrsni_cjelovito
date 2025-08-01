@@ -14,14 +14,12 @@ export const useAuthStore = defineStore("auth", () => {
       let endpoint, payload;
 
       if (credentials.isAdmin) {
-        // Administrator login
         endpoint = "/admin/login";
         payload = {
-          username: credentials.username, // koristi se kao username za admina
+          username: credentials.username,
           password: credentials.password,
         };
       } else {
-        // Korisnik login
         endpoint = "/korisnik/login";
         payload = {
           email_korisnika: credentials.email,
@@ -52,43 +50,39 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function register(userData) {
-    isLoading.value = true;
-    try {
-      const payload = {
-        ime_korisnika: userData.name,
-        prezime_korisnika: userData.surname,
-        broj_telefona_korisnika: userData.phone,
-        email_korisnika: userData.email,
-        korisnicko_ime: userData.username,
-        lozinka: userData.password,
-      };
+  // **Dodaj ovu funkciju**
+async function register(registrationData) {
+  isLoading.value = true;
+  try {
+    const response = await api.post("/korisnik/register", {
+      ime_korisnika: registrationData.name,
+      prezime_korisnika: registrationData.surname,
+      broj_telefona_korisnika: registrationData.phone,
+      email_korisnika: registrationData.email,
+      korisnicko_ime: registrationData.username,
+      lozinka: registrationData.password,
+    });
 
-      const response = await api.post("/korisnik", payload);
-      user.value = response.data;
+    // Nakon registracije, korisnika možeš automatski prijaviti ako backend vrati podatke o korisniku
+    // ovdje samo prikazujem da se registracija uspjela, ne radim automatski login
 
-      if (user.value) {
-        localStorage.setItem("user", JSON.stringify(user.value));
-      }
-
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error:
-          error.response?.data?.error ||
-          error.response?.data?.message ||
-          "Registracija nije uspjela",
-      };
-    } finally {
-      isLoading.value = false;
-    }
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Registracija nije uspjela",
+    };
+  } finally {
+    isLoading.value = false;
   }
+}
 
   function logout() {
     user.value = null;
     localStorage.removeItem("user");
-    // Opcionalno: možeš dodati poziv prema /logout endpointu ako koristiš sesije
   }
 
   function initializeAuth() {
@@ -103,7 +97,7 @@ export const useAuthStore = defineStore("auth", () => {
     isLoading,
     isAuthenticated,
     login,
-    register,
+    register, // **Obavezno dodaj register u return!**
     logout,
     initializeAuth,
   };

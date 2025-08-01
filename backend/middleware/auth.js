@@ -1,18 +1,9 @@
-const jwt = require('jsonwebtoken');
-
 const isAuthenticated = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  
-  if (!token) {
-    return res.status(401).json({ error: 'Access denied. No token provided.' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+  if (req.session && req.session.korisnik) {
+    req.user = req.session.korisnik; // Dodaj korisnika u request objekt
     next();
-  } catch (error) {
-    res.status(400).json({ error: 'Invalid token.' });
+  } else {
+    res.status(401).json({ error: "Niste prijavljeni. Pristup odbijen." });
   }
 };
 

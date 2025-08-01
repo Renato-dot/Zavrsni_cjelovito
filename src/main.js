@@ -13,26 +13,19 @@ import { useAuthStore } from "./stores/auth";
 const pinia = createPinia();
 const app = createApp(App);
 
-app.use(pinia); // <--- mora ići prije storea
+app.use(pinia);
 
-// 💡 Kreiraj authStore s pinia instancom
-const authStore = useAuthStore(pinia);
-
-// 🧠 Inicijaliziraj auth podatke PRIJE routera
+const authStore = useAuthStore();
 authStore.initializeAuth();
 
-// 📦 Kreiraj router TEK SAD
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
 
-// 🛡️ Router guard
 router.beforeEach((to, from, next) => {
   const publicPages = ["/login", "/register"];
   const authRequired = !publicPages.includes(to.path);
-
-  console.log("Router Guard -> isAuthenticated:", authStore.isAuthenticated);
 
   if (authRequired && !authStore.isAuthenticated) {
     next("/login");
@@ -52,5 +45,6 @@ app.use(Quasar, {
   lang: quasarLang,
   iconSet: quasarIconSet,
 });
+
 app.use(router);
 app.mount("#app");

@@ -12,10 +12,10 @@
         />
         <q-toolbar-title>
           <q-icon name="sports_soccer" size="sm" class="q-mr-sm" />
-          SportFields Rental
+          Sporty - tereni
         </q-toolbar-title>
         <div class="q-mr-md">
-          Welcome, {{ authStore.user?.korisnicko_ime }}
+          Dobrodošli, {{ authStore.user?.korisnicko_ime }}
         </div>
         <q-btn flat round dense icon="search" @click="$router.push('/search')" />
         <q-btn flat round dense icon="logout" @click="handleLogout" />
@@ -45,21 +45,21 @@
             <q-item-section avatar>
               <q-icon name="sports_soccer" />
             </q-item-section>
-            <q-item-section>Field Listings</q-item-section>
+            <q-item-section>Naši tereni</q-item-section>
           </q-item>
 
           <q-item clickable @click="$router.push('/external-links')" v-ripple>
             <q-item-section avatar>
               <q-icon name="link" />
             </q-item-section>
-            <q-item-section>External Links</q-item-section>
+            <q-item-section>Partnerski linkovi</q-item-section>
           </q-item>
 
           <q-item clickable @click="$router.push('/search')" v-ripple>
             <q-item-section avatar>
               <q-icon name="search" />
             </q-item-section>
-            <q-item-section>Search</q-item-section>
+            <q-item-section>Pretraga</q-item-section>
           </q-item>
 
           <q-separator class="q-my-md" />
@@ -68,7 +68,7 @@
             <q-item-section avatar>
               <q-icon name="settings" />
             </q-item-section>
-            <q-item-section>Settings</q-item-section>
+            <q-item-section>Postavke</q-item-section>
           </q-item>
 
           <q-item clickable @click="handleLogout" v-ripple>
