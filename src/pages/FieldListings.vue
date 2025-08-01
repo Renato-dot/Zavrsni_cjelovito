@@ -154,7 +154,7 @@ function viewDetails(field) {
 
 // Poziv rezervacije
 function bookField(field) {
-  const korisnik = JSON.parse(localStorage.getItem('korisnik'))
+  const korisnik = JSON.parse(localStorage.getItem('user'))
   const datum = new Date().toISOString().split('T')[0]
 
   if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
