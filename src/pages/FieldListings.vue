@@ -90,7 +90,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import api from '../services/api'
-import axios from 'axios'
 
 const $q = useQuasar()
 const tereni = ref([])
