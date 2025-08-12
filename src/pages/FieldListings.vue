@@ -90,7 +90,6 @@
 import { ref, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import api from '../services/api'
-import axios from 'axios'
 
 const $q = useQuasar()
 const tereni = ref([])
@@ -116,15 +115,15 @@ const fields = computed(() => {
 function getDefaultImage(name) {
   if (!name) return fallback
   const map = {
-    'Nogomet': 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400',
-    'Košarka': 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Nogometni teren': 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Teren za košarku': 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400',
     'Tenis': 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&cs=tinysrgb&w=400',
     'Plivanje': 'https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg?auto=compress&cs=tinysrgb&w=400'
   }
   return map[name] || fallback
 }
 
-const fallback = 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=400'
+const fallback = 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400'
 
 // Dohvat podataka
 async function fetchTereni() {
@@ -153,23 +152,11 @@ function viewDetails(field) {
   showDetails.value = true
 }
 
-// Poziv rezervacije
+// Poziv rezervacije (koristi session korisnika)
 function bookField(field) {
-  const korisnik = JSON.parse(localStorage.getItem('korisnik'))
   const datum = new Date().toISOString().split('T')[0]
 
-  if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
-    $q.notify({
-      type: 'negative',
-      message: 'Niste prijavljeni ili nedostaju podaci korisnika',
-      position: 'top'
-    })
-    return
-  }
-
   const payload = {
-    ime_korisnika: korisnik.ime_korisnika,
-    prezime_korisnika: korisnik.prezime_korisnika,
     Naziv: field.name,
     datum_iznajmljivanja: datum
   }
@@ -193,8 +180,6 @@ function bookField(field) {
       })
     })
 }
-
-
 </script>
 
 <style scoped>

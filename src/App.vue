@@ -1,6 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated v-if="authStore.isAuthenticated">
+    <!-- Header i drawer se prikazuju samo ako nismo na admin ruti i korisnik je autentificiran -->
+    <q-header elevated v-if="authStore.isAuthenticated && !isAdminRoute">
       <q-toolbar>
         <q-btn
           flat
@@ -25,7 +26,7 @@
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
-      v-if="authStore.isAuthenticated"
+      v-if="authStore.isAuthenticated && !isAdminRoute"
       bordered
       :width="200"
       :breakpoint="400"
@@ -88,15 +89,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from './stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const $q = useQuasar()
 const authStore = useAuthStore()
 const leftDrawerOpen = ref(false)
+
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value

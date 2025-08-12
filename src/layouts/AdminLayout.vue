@@ -36,16 +36,22 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { useAuthStore } from '../stores/auth' // prilagodi putanju ako treba
 
 const router = useRouter()
+const $q = useQuasar()
+const authStore = useAuthStore()
 const drawerOpen = ref(true)
 
 function logout() {
-  localStorage.removeItem('token')
-  localStorage.removeItem('role')
-    router.push('/login').then(() => {
-        window.location.reload()
-    })
+  authStore.logout()   // čisti auth podatke u storeu i localStorage (pretpostavljam)
+  $q.notify({
+    type: 'positive',
+    message: 'Uspješno ste odjavljeni',
+    position: 'top'
+  })
+  router.push('/login')
 }
 
 function goTo(page) {

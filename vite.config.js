@@ -10,7 +10,7 @@ export default defineConfig({
     }),
     quasar({
       sassVariables: resolve(__dirname, "src/quasar-variables.sass"),
-      plugins: ["Notify"], // ✅ OVO DODAJ
+      plugins: ["Notify"], 
     }),
   ],
   resolve: {

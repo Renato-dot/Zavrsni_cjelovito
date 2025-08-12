@@ -72,7 +72,7 @@ const externalLinks = ref([
     id: 1,
     name: 'SportCenter Pro',
     description: 'Profesionalna ustanova za održavanje terena',
-    url: 'https://www.sportcenter.com',
+    url: 'https://mifkasport.hr/odrzavanje-i-servisi-prirodnih-i-umjetnih-travnjaka/',
     icon: 'sports_soccer',
     color: 'primary',
     category: 'Ustanova'
@@ -81,7 +81,7 @@ const externalLinks = ref([
     id: 2,
     name: 'Tereni za trčanje',
     description: 'Tereni za trčanje diljem države',
-    url: 'https://www.athleticfields.net',
+    url: 'https://rezervacije.rijekasport.hr/rezervacija/?sport=tr%C4%8Danje',
     icon: 'sports_tennis',
     color: 'secondary',
     category: 'Network'
@@ -90,7 +90,7 @@ const externalLinks = ref([
     id: 3,
     name: 'Plivački klub',
     description: 'Najbolji plivački tereni',
-    url: 'https://www.swimclub.com',
+    url: 'https://www.rijekasport.hr/hr/objekti/bazeni-kantrida/termini-za-gradjanstvo/',
     icon: 'pool',
     color: 'info',
     category: 'Ustanova'
@@ -99,7 +99,7 @@ const externalLinks = ref([
     id: 4,
     name: 'Košarkaški tereni',
     description: 'Najbolji košarkški tereni u lijepoj našoj',
-    url: 'https://www.basketballcourts.usa',
+    url: 'https://rezervacije.rijekasport.hr/rezervacija/?sport=kosarka',
     icon: 'sports_basketball',
     color: 'orange',
     category: 'Multifunkcionalno'
@@ -108,16 +108,16 @@ const externalLinks = ref([
     id: 5,
     name: 'Svijet tenisa',
     description: 'Široki izbor teniskih terena',
-    url: 'https://www.tennisworld.com',
+    url: 'https://rezervacije.rijekasport.hr/rezervacija/?sport=tenis',
     icon: 'sports_tennis',
     color: 'positive',
     category: 'Platforma'
   },
   {
     id: 6,
-    name: 'Odbojkaška arena',
+    name: 'Odbojka',
     description: 'Odbojka na plaži ili u dvorani? Mi imamo sve',
-    url: 'https://www.volleyballarena.com',
+    url: 'https://www.kop-vrapce.com/rezerviraj-teren-2/',
     icon: 'sports_volleyball',
     color: 'warning',
     category: 'Ustanova'
@@ -126,18 +126,9 @@ const externalLinks = ref([
     id: 7,
     name: 'Iznajmljivanje opreme',
     description: 'Iznajmite potrebnu opremu',
-    url: 'https://www.sportsequipment.com',
+    url: 'https://usluge.hervis.hr/trgovina/sup-daske',
     icon: 'sports_handball',
     color: 'negative',
-    category: 'Usluga'
-  },
-  {
-    id: 8,
-    name: 'Održavanje terena',
-    description: 'Profesionalna usluga održavanja terena',
-    url: 'https://www.fieldmaintenance.com',
-    icon: 'grass',
-    color: 'teal',
     category: 'Usluga'
   }
 ])

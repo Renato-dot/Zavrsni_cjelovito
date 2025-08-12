@@ -56,6 +56,7 @@ app.use('/api/stavke', stavkeRoutes);
 app.use('/api/tereni', tereniRoutes);
 app.use("/api/admin", adminRoutes);
 
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
