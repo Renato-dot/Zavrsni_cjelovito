@@ -321,26 +321,6 @@ async function confirmReservation() {
     })
   }
 }
-
-  api.post('/rezervacije', payload, { withCredentials: true })
-    .then(() => {
-      $q.notify({
-        type: 'positive',
-        message: `Rezervacija za ${field.name} uspješna!`,
-        position: 'top'
-      })
-      showDetails.value = false
-    })
-    .catch(err => {
-      console.error('Rezervacija greška:', err)
-      console.error('Error response:', err.response?.data)
-      $q.notify({
-        type: 'negative',
-        message: err.response?.data?.error || 'Greška pri rezervaciji.',
-        position: 'top'
-      })
-    })
-}
 </script>
 
 <style scoped>
@@ -356,10 +336,5 @@ async function confirmReservation() {
 
 .field-image {
   border-radius: 8px 8px 0 0;
-}
-
-.time-slot-btn {
-  min-width: 60px;
-  margin: 2px;
 }
 </style>
