@@ -96,29 +96,3 @@ router.post("/rezerviraj", (req, res) => {
 });
 
 module.exports = router;
-
-      `SELECT rezerviran FROM termini WHERE teren_id = ? AND datum = ? AND sat = ?`,
-      [teren_id, datum, sat]
-    );
-
-    if (rows.length === 0) {
-      return res.status(400).json({ error: "Termin ne postoji" });
-    }
-    if (rows[0].rezerviran) {
-      return res.status(409).json({ error: "Termin je zauzet" });
-    }
-
-    
-    await db.query(
-      `UPDATE termini SET rezerviran = TRUE, korisnik_id = ? WHERE teren_id = ? AND datum = ? AND sat = ?`,
-      [korisnik_id, teren_id, datum, sat]
-    );
-
-    res.json({ message: "Termin uspješno rezerviran" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Greška na serveru" });
-  }
-});
-
-module.exports = router;
