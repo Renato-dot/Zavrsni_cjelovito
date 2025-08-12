@@ -110,7 +110,7 @@
                 v-for="slot in timeSlots"
                 :key="slot.sat"
                 :color="slot.rezerviran ? 'negative' : 'positive'"
-                :disable="slot.rezerviran"
+                :disable="!!slot.rezerviran"
                 :label="`${slot.sat}:00`"
                 @click="selectTimeSlot(slot)"
                 class="time-slot-btn"
