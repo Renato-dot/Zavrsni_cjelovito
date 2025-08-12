@@ -83,6 +83,67 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- TIME SLOT BOOKING MODAL -->
+    <q-dialog v-model="showTimeSlots" persistent>
+      <q-card style="min-width: 500px" v-if="selectedField">
+        <q-card-section>
+          <div class="text-h6">Rezervacija - {{ selectedField.name }}</div>
+          <div class="text-subtitle2 text-grey-6">{{ selectedField.location }}</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-mb-md">
+            <q-input
+              v-model="selectedDate"
+              type="date"
+              label="Odaberite datum"
+              filled
+              @update:model-value="fetchTimeSlots"
+            />
+          </div>
+
+          <div v-if="selectedDate" class="q-mb-md">
+            <div class="text-subtitle1 q-mb-sm">Dostupni termini:</div>
+            <div class="row q-gutter-sm">
+              <q-btn
+                v-for="slot in timeSlots"
+                :key="slot.sat"
+                :color="slot.rezerviran ? 'negative' : 'positive'"
+                :disable="slot.rezerviran"
+                :label="`${slot.sat}:00`"
+                @click="selectTimeSlot(slot)"
+                class="time-slot-btn"
+              />
+            </div>
+            <div class="q-mt-sm text-caption text-grey-6">
+              <q-icon name="circle" color="positive" size="xs" /> Dostupno
+              <q-icon name="circle" color="negative" size="xs" class="q-ml-md" /> Rezervirano
+            </div>
+          </div>
+
+          <div v-if="selectedTimeSlot" class="q-pa-md bg-grey-2 rounded-borders">
+            <div class="text-subtitle2">Odabrani termin:</div>
+            <div class="text-body1">
+              <strong>{{ selectedDate }}</strong> u <strong>{{ selectedTimeSlot.sat }}:00</strong>
+            </div>
+            <div class="text-body2 text-grey-6">
+              Cijena: {{ selectedField.price }}€ / sat
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Odustani" color="grey" @click="closeTimeSlotModal" />
+          <q-btn 
+            label="Potvrdi rezervaciju" 
+            color="primary"
+            :disable="!selectedTimeSlot"
+            @click="confirmReservation"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -96,6 +157,10 @@ const tereni = ref([])
 const loading = ref(false)
 const showDetails = ref(false)
 const selectedField = ref(null)
+const showTimeSlots = ref(false)
+const selectedDate = ref('')
+const selectedTimeSlot = ref(null)
+const timeSlots = ref([])
 
 // Transformacija podataka iz baze
 const fields = computed(() => {
@@ -152,10 +217,74 @@ function viewDetails(field) {
   showDetails.value = true
 }
 
-// Poziv rezervacije (koristi session korisnika)
+// Open time slot selection
 function bookField(field) {
+  selectedField.value = field
+  showDetails.value = false
+  showTimeSlots.value = true
+  
+  // Set default date to today
+  const today = new Date()
+  selectedDate.value = today.toISOString().split('T')[0]
+  
+  // Fetch time slots for today
+  fetchTimeSlots()
+}
+
+// Fetch available time slots for selected date and field
+async function fetchTimeSlots() {
+  if (!selectedDate.value || !selectedField.value) return
+  
+  try {
+    const response = await api.get('/termini', {
+      params: {
+        teren_id: selectedField.value.id,
+        datum: selectedDate.value
+      }
+    })
+    
+    timeSlots.value = response.data
+  } catch (error) {
+    // If no slots exist, create default slots (8:00 - 20:00)
+    timeSlots.value = []
+    for (let sat = 8; sat <= 20; sat++) {
+      timeSlots.value.push({
+        sat: sat,
+        rezerviran: false
+      })
+    }
+    
+    console.log('Creating default time slots:', error)
+  }
+}
+
+// Select a time slot
+function selectTimeSlot(slot) {
+  if (!slot.rezerviran) {
+    selectedTimeSlot.value = slot
+  }
+}
+
+// Close time slot modal and reset
+function closeTimeSlotModal() {
+  showTimeSlots.value = false
+  selectedDate.value = ''
+  selectedTimeSlot.value = null
+  timeSlots.value = []
+}
+
+// Confirm reservation with selected time slot
+async function confirmReservation() {
+  if (!selectedTimeSlot.value || !selectedDate.value || !selectedField.value) {
+    $q.notify({
+      type: 'negative',
+      message: 'Molimo odaberite datum i termin',
+      position: 'top'
+    })
+    return
+  }
+
   const korisnik = JSON.parse(localStorage.getItem('korisnik'))
-  const datum = new Date().toISOString().split('T')[0]
 
   if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
     $q.notify({
@@ -167,12 +296,31 @@ function bookField(field) {
   }
 
   const payload = {
-    Naziv: field.name,
-    datum_iznajmljivanja: datum
+    Naziv: selectedField.value.name,
+    datum_iznajmljivanja: selectedDate.value,
+    sat: selectedTimeSlot.value.sat,
+    teren_id: selectedField.value.id
   }
 
-  console.log('Šaljem payload:', payload)
-  console.log('Session korisnik should be available on backend')
+  try {
+    await api.post('/rezervacije', payload, { withCredentials: true })
+    
+    $q.notify({
+      type: 'positive',
+      message: `Rezervacija za ${selectedField.value.name} na ${selectedDate.value} u ${selectedTimeSlot.value.sat}:00 uspješna!`,
+      position: 'top'
+    })
+    
+    closeTimeSlotModal()
+  } catch (err) {
+    console.error('Rezervacija greška:', err)
+    $q.notify({
+      type: 'negative',
+      message: err.response?.data?.error || 'Greška pri rezervaciji.',
+      position: 'top'
+    })
+  }
+}
 
   api.post('/rezervacije', payload, { withCredentials: true })
     .then(() => {
@@ -208,5 +356,10 @@ function bookField(field) {
 
 .field-image {
   border-radius: 8px 8px 0 0;
+}
+
+.time-slot-btn {
+  min-width: 60px;
+  margin: 2px;
 }
 </style>

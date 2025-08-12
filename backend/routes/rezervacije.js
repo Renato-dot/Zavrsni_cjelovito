@@ -21,9 +21,9 @@ router.post("/", isAuthenticated, (req, res) => {
     return res.status(401).json({ error: "Niste prijavljeni" });
   }
 
-  const { Naziv, datum_iznajmljivanja } = req.body;
+  const { Naziv, datum_iznajmljivanja, sat, teren_id } = req.body;
 
-  if (!Naziv || !datum_iznajmljivanja) {
+  if (!Naziv || !datum_iznajmljivanja || !sat || !teren_id) {
     return res.status(400).json({ error: "Nedostaju potrebni podaci" });
   }
 
@@ -67,8 +67,20 @@ router.post("/", isAuthenticated, (req, res) => {
               .json({ error: "Greška pri spremanju rezervacije" });
           }
 
-          console.log("Rezervacija uspješna:", result2);
-          res.json({ message: "Rezervacija uspješna!" });
+          // Također rezerviraj termin u termini tablici
+          connection.query(
+            `UPDATE termini SET rezerviran = TRUE, sifra_korisnika = ? WHERE teren_id = ? AND datum = ? AND sat = ?`,
+            [korisnik.sifra_korisnika, teren_id, datum_iznajmljivanja, sat],
+            (err3) => {
+              if (err3) {
+                console.error("Greška kod rezervacije termina:", err3);
+                // Ne vraćaj grešku jer je rezervacija već uspješno unesena
+              }
+              
+              console.log("Rezervacija uspješna:", result2);
+              res.json({ message: "Rezervacija uspješna!" });
+            }
+          );
         }
       );
     }
