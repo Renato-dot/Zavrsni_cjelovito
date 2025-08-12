@@ -154,7 +154,17 @@ function viewDetails(field) {
 
 // Poziv rezervacije (koristi session korisnika)
 function bookField(field) {
+  const korisnik = JSON.parse(localStorage.getItem('korisnik'))
   const datum = new Date().toISOString().split('T')[0]
+
+  if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
+    $q.notify({
+      type: 'negative',
+      message: 'Niste prijavljeni ili nedostaju podaci korisnika',
+      position: 'top'
+    })
+    return
+  }
 
   const payload = {
     Naziv: field.name,
@@ -162,6 +172,7 @@ function bookField(field) {
   }
 
   console.log('Šaljem payload:', payload)
+  console.log('Session korisnik should be available on backend')
 
   api.post('/rezervacije', payload, { withCredentials: true })
     .then(() => {
@@ -170,12 +181,14 @@ function bookField(field) {
         message: `Rezervacija za ${field.name} uspješna!`,
         position: 'top'
       })
+      showDetails.value = false
     })
     .catch(err => {
       console.error('Rezervacija greška:', err)
+      console.error('Error response:', err.response?.data)
       $q.notify({
         type: 'negative',
-        message: 'Greška pri rezervaciji.',
+        message: err.response?.data?.error || 'Greška pri rezervaciji.',
         position: 'top'
       })
     })
