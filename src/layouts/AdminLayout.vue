@@ -20,6 +20,16 @@
           <q-item-section>Uredi terene</q-item-section>
         </q-item>
 
+        <q-item clickable v-ripple @click="goTo('korisnici')">
+          <q-item-section avatar><q-icon name="people" /></q-item-section>
+          <q-item-section>Upravljanje korisnicima</q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple @click="goTo('administratori')">
+          <q-item-section avatar><q-icon name="admin_panel_settings" /></q-item-section>
+          <q-item-section>Upravljanje administratorima</q-item-section>
+        </q-item>
+
         <q-item clickable v-ripple @click="logout">
           <q-item-section avatar><q-icon name="logout" /></q-item-section>
           <q-item-section>Logout</q-item-section>

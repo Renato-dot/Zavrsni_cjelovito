@@ -1,93 +1,65 @@
 const express = require("express");
 const router = express.Router();
 const connection = require("../config/database");
-const { isAuthenticated } = require("../middleware/auth");
 
-// Get all admin entries
-router.get("/", (req, res) => {
-  connection.query("SELECT * FROM Admin", (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+// Middleware za provjeru admin sesije
+function authAdmin(req, res, next) {
+  if (req.session?.admin) return next();
+  res.status(401).json({ error: "Niste prijavljeni. Pristup odbijen." });
+}
+
+router.post("/", authAdmin, (req, res) => {
+  const { username, password } = req.body;
+  const sql = "INSERT INTO Admin (username, password) VALUES (?, ?)";
+  connection.query(sql, [username, password], (err, results) => {
+    if (err) return res.status(500).json({ error: "Greška na serveru" });
+    res.json({ message: "Admin dodan", id: results.insertId });
+  });
+});
+
+// Login
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password)
+    return res
+      .status(400)
+      .json({ error: "Korisničko ime i lozinka su obavezni" });
+
+  const sql = "SELECT * FROM Admin WHERE username = ? AND password = ?";
+  connection.query(sql, [username, password], (err, results) => {
+    if (err) return res.status(500).json({ error: "Greška na serveru" });
+    if (results.length === 0)
+      return res
+        .status(401)
+        .json({ error: "Pogrešno korisničko ime ili lozinka" });
+
+    req.session.admin = results[0]; // Sprema admina u sesiju
+    res.json({ message: "Prijava uspješna", admin: results[0] });
+  });
+});
+
+// Logout
+router.post("/logout", authAdmin, (req, res) => {
+  req.session.destroy();
+  res.json({ message: "Odjava uspješna" });
+});
+
+// Dohvat svih admina
+router.get("/", authAdmin, (req, res) => {
+  const sql = "SELECT * FROM Admin";
+  connection.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: "Greška na serveru" });
     res.json(results);
   });
 });
 
-// Get admin by ID
-router.get("/:id", (req, res) => {
-  connection.query(
-    "SELECT * FROM Admin WHERE id = ?",
-    [req.params.id],
-    (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      if (results.length === 0)
-        return res.status(404).json({ message: "Admin not found" });
-      res.json(results[0]);
-    }
-  );
-});
-
-// Create new admin
-router.post("/", isAuthenticated, (req, res) => {
+// Update admina
+router.put("/:id", authAdmin, (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password)
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
-
-  connection.query(
-    "INSERT INTO Admin (username, password) VALUES (?, ?)",
-    [username, password],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ id: result.insertId, username, password });
-    }
-  );
-});
-
-// Update admin
-router.put("/:id", isAuthenticated, (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password)
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
-
-  connection.query(
-    "UPDATE Admin SET username = ?, password = ? WHERE id = ?",
-    [username, password, req.params.id],
-    (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: req.params.id, username, password });
-    }
-  );
-});
-
-// Delete admin
-router.delete("/:id", isAuthenticated, (req, res) => {
-  connection.query("DELETE FROM Admin WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Obrisano" });
-  });
-});
-
-
-// POST /api/admin/login
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Korisničko ime i lozinka su obavezni' });
-  }
-
-  const sql = 'SELECT * FROM Admin WHERE username = ? AND password = ?';
-  connection.query(sql, [username, password], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Greška na serveru' });
-
-    if (results.length === 0) {
-      return res.status(401).json({ error: 'Pogrešno korisničko ime ili lozinka' });
-    }
-
-    req.session.admin = results[0]; // Sprema admina u sesiju
-    res.json({ message: 'Prijava uspješna', user: results[0] });
+  const sql = "UPDATE Admin SET username = ?, password = ? WHERE id = ?";
+  connection.query(sql, [username, password, req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Greška na serveru" });
+    res.json({ message: "Admin ažuriran" });
   });
 });
 
