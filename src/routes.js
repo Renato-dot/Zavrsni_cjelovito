@@ -5,7 +5,7 @@ import Login from "./pages/Login.vue";
 import Register from "./pages/Register.vue";
 import Settings from "./pages/Settings.vue";
 import Search from "./pages/Search.vue";
-import MojeRezervacije from "./pages/MojeRezervacije.vue"; // ⬅ Dodano
+import MojeRezervacije from "./pages/MojeRezervacije.vue";
 
 // ADMIN
 import AdminLayout from "./layouts/AdminLayout.vue";
@@ -49,7 +49,7 @@ export default [
     component: Search,
   },
   {
-    path: "/rezervacije", // ⬅ Nova ruta
+    path: "/rezervacije",
     name: "moje-rezervacije",
     component: MojeRezervacije,
   },

@@ -63,6 +63,13 @@
             <q-item-section>Pretraga</q-item-section>
           </q-item>
 
+          <q-item clickable @click="$router.push('/rezervacije')" v-ripple>
+            <q-item-section avatar>
+              <q-icon name="event" />
+            </q-item-section>
+            <q-item-section>Moje rezervacije</q-item-section>
+          </q-item>
+
           <q-separator class="q-my-md" />
 
           <q-item clickable @click="$router.push('/settings')" v-ripple>
