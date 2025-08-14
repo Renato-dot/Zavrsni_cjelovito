@@ -1,4 +1,3 @@
-// routes.js
 import Home from "./pages/Home.vue";
 import ExternalLinks from "./pages/ExternalLinks.vue";
 import FieldListings from "./pages/FieldListings.vue";
@@ -6,6 +5,7 @@ import Login from "./pages/Login.vue";
 import Register from "./pages/Register.vue";
 import Settings from "./pages/Settings.vue";
 import Search from "./pages/Search.vue";
+import MojeRezervacije from "./pages/MojeRezervacije.vue"; // ⬅ Dodano
 
 // ADMIN
 import AdminLayout from "./layouts/AdminLayout.vue";
@@ -47,6 +47,11 @@ export default [
     path: "/search",
     name: "search",
     component: Search,
+  },
+  {
+    path: "/rezervacije", // ⬅ Nova ruta
+    name: "moje-rezervacije",
+    component: MojeRezervacije,
   },
   // ADMIN
   {

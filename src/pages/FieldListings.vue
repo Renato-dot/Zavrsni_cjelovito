@@ -162,7 +162,6 @@ const selectedDate = ref('')
 const selectedTimeSlot = ref(null)
 const timeSlots = ref([])
 
-// Transformacija podataka iz baze
 const fields = computed(() => {
   return tereni.value.map(teren => ({
     id: teren.Sifra_terena,
@@ -176,7 +175,6 @@ const fields = computed(() => {
   }))
 })
 
-// Slike po vrsti naziva
 function getDefaultImage(name) {
   if (!name) return fallback
   const map = {
@@ -190,7 +188,6 @@ function getDefaultImage(name) {
 
 const fallback = 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400'
 
-// Dohvat podataka
 async function fetchTereni() {
   loading.value = true
   try {
@@ -217,21 +214,17 @@ function viewDetails(field) {
   showDetails.value = true
 }
 
-// Open time slot selection
 function bookField(field) {
   selectedField.value = field
   showDetails.value = false
   showTimeSlots.value = true
   
-  // Set default date to today
   const today = new Date()
   selectedDate.value = today.toISOString().split('T')[0]
   
-  // Fetch time slots for today
   fetchTimeSlots()
 }
 
-// Fetch available time slots for selected date and field
 async function fetchTimeSlots() {
   if (!selectedDate.value || !selectedField.value) return
   
@@ -243,9 +236,12 @@ async function fetchTimeSlots() {
       }
     })
     
-    timeSlots.value = response.data
+    timeSlots.value = response.data.map(slot => ({
+      sat: slot.sat,
+      rezerviran: slot.rezerviran === 1 || slot.rezerviran === true
+    })).sort((a, b) => a.sat - b.sat)
+    
   } catch (error) {
-    // If no slots exist, create default slots (8:00 - 20:00)
     timeSlots.value = []
     for (let sat = 8; sat <= 20; sat++) {
       timeSlots.value.push({
@@ -253,19 +249,16 @@ async function fetchTimeSlots() {
         rezerviran: false
       })
     }
-    
     console.log('Creating default time slots:', error)
   }
 }
 
-// Select a time slot
 function selectTimeSlot(slot) {
   if (!slot.rezerviran) {
     selectedTimeSlot.value = slot
   }
 }
 
-// Close time slot modal and reset
 function closeTimeSlotModal() {
   showTimeSlots.value = false
   selectedDate.value = ''
@@ -273,7 +266,6 @@ function closeTimeSlotModal() {
   timeSlots.value = []
 }
 
-// Confirm reservation with selected time slot
 async function confirmReservation() {
   if (!selectedTimeSlot.value || !selectedDate.value || !selectedField.value) {
     $q.notify({
@@ -284,7 +276,7 @@ async function confirmReservation() {
     return
   }
 
-  const korisnik = JSON.parse(localStorage.getItem('korisnik'))
+  const korisnik = JSON.parse(localStorage.getItem('user'))
 
   if (!korisnik || !korisnik.ime_korisnika || !korisnik.prezime_korisnika) {
     $q.notify({
