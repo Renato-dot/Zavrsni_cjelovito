@@ -11,6 +11,8 @@ import MojeRezervacije from "./pages/MojeRezervacije.vue";
 import AdminLayout from "./layouts/AdminLayout.vue";
 import AdminDashboard from "./pages/AdminDashboard.vue";
 import AdminField from "./pages/AdminField.vue";
+import AdminUsers from "./pages/AdminUsers.vue";
+import AdminAdmins from "./pages/AdminAdmins.vue";
 
 export default [
   {
@@ -67,6 +69,16 @@ export default [
         path: "tereni",
         name: "admin-tereni",
         component: AdminField,
+      },
+      {
+        path: "korisnici",
+        name: "admin-korisnici",
+        component: AdminUsers,
+      },
+      {
+        path: "administratori",
+        name: "admin-administratori",
+        component: AdminAdmins,
       },
       {
         path: "",

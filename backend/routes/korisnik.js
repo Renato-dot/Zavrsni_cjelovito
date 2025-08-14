@@ -22,18 +22,142 @@ router.get('/:id', (req, res) => {
 
 
 router.post('/', (req, res) => {
-  connection.query("INSERT INTO korisnik SET ?", req.body, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({ id: result.insertId, ...req.body });
-  });
+  const {
+    ime_korisnika,
+    prezime_korisnika,
+    broj_telefona_korisnika,
+    email_korisnika,
+    korisnicko_ime,
+    lozinka,
+  } = req.body;
+
+  if (
+    !ime_korisnika ||
+    !prezime_korisnika ||
+    !email_korisnika ||
+    !korisnicko_ime ||
+    !lozinka
+  ) {
+    return res.status(400).json({ error: "Nedostaju obavezni podaci" });
+  }
+
+  // Provjeri postoji li korisnik s istim emailom ili korisničkim imenom
+  connection.query(
+    "SELECT * FROM korisnik WHERE email_korisnika = ? OR korisnicko_ime = ?",
+    [email_korisnika, korisnicko_ime],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Greška na serveru" });
+      }
+
+      if (results.length > 0) {
+        return res.status(400).json({ error: "Korisnik s tim emailom ili korisničkim imenom već postoji" });
+      }
+
+      // Hashiraj lozinku
+      bcrypt.hash(lozinka, 10, (hashErr, hashedPassword) => {
+        if (hashErr) {
+          console.error(hashErr);
+          return res
+            .status(500)
+            .json({ error: "Greška prilikom hashiranja lozinke" });
+        }
+
+        // Stvori korisnika
+        connection.query(
+          `INSERT INTO korisnik 
+           (ime_korisnika, prezime_korisnika, broj_telefona_korisnika, email_korisnika, korisnicko_ime, lozinka) 
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            ime_korisnika,
+            prezime_korisnika,
+            broj_telefona_korisnika || null,
+            email_korisnika,
+            korisnicko_ime,
+            hashedPassword,
+          ],
+          (insertErr, insertResults) => {
+            if (insertErr) {
+              console.error(insertErr);
+              return res.status(500).json({ error: "Greška na serveru" });
+            }
+
+            res.status(201).json({ 
+              id: insertResults.insertId, 
+              message: "Korisnik uspješno stvoren",
+              korisnik: {
+                sifra_korisnika: insertResults.insertId,
+                ime_korisnika,
+                prezime_korisnika,
+                email_korisnika,
+                korisnicko_ime
+              }
+            });
+          }
+        );
+      });
+    }
+  );
 });
 
 
 router.put('/:id', isAuthenticated, (req, res) => {
-  connection.query("UPDATE korisnik SET ? WHERE sifra_korisnika = ?", [req.body, req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ id: req.params.id, ...req.body });
-  });
+  const {
+    ime_korisnika,
+    prezime_korisnika,
+    broj_telefona_korisnika,
+    email_korisnika,
+    korisnicko_ime,
+    lozinka,
+  } = req.body;
+
+  if (
+    !ime_korisnika ||
+    !prezime_korisnika ||
+    !email_korisnika ||
+    !korisnicko_ime
+  ) {
+    return res.status(400).json({ error: "Nedostaju obavezni podaci" });
+  }
+
+  // Ako je lozinka unesena, hashiraj je
+  if (lozinka) {
+    bcrypt.hash(lozinka, 10, (hashErr, hashedPassword) => {
+      if (hashErr) {
+        console.error(hashErr);
+        return res.status(500).json({ error: "Greška prilikom hashiranja lozinke" });
+      }
+
+      const updateData = {
+        ime_korisnika,
+        prezime_korisnika,
+        broj_telefona_korisnika: broj_telefona_korisnika || null,
+        email_korisnika,
+        korisnicko_ime,
+        lozinka: hashedPassword
+      };
+
+      connection.query("UPDATE korisnik SET ? WHERE sifra_korisnika = ?", [updateData, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: req.params.id, message: "Korisnik ažuriran" });
+      });
+    });
+  } else {
+    // Ažuriraj bez lozinke
+    const updateData = {
+      ime_korisnika,
+      prezime_korisnika,
+      broj_telefona_korisnika: broj_telefona_korisnika || null,
+      email_korisnika,
+      korisnicko_ime
+    };
+
+    connection.query("UPDATE korisnik SET ? WHERE sifra_korisnika = ?", [updateData, req.params.id], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: req.params.id, message: "Korisnik ažuriran" });
+    });
+  }
 });
 
 
