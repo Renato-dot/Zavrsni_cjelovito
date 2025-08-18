@@ -87,9 +87,6 @@ router.post("/", isAuthenticated, (req, res) => {
   );
 });
 
-
-module.exports = router;
-
 // Ažuriraj rezervaciju
 router.put("/:id", isAuthenticated, (req, res) => {
   connection.query(

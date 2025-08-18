@@ -32,19 +32,6 @@ router.post("/", (req, res) => {
     lozinka,
   } = req.body;
 
-<<<<<<< HEAD
-=======
-router.post('/', (req, res) => {
-  const {
-    ime_korisnika,
-    prezime_korisnika,
-    broj_telefona_korisnika,
-    email_korisnika,
-    korisnicko_ime,
-    lozinka,
-  } = req.body;
-
->>>>>>> refs/remotes/origin/main
   if (
     !ime_korisnika ||
     !prezime_korisnika ||
@@ -66,15 +53,7 @@ router.post('/', (req, res) => {
       }
 
       if (results.length > 0) {
-<<<<<<< HEAD
-        return res
-          .status(400)
-          .json({
-            error: "Korisnik s tim emailom ili korisničkim imenom već postoji",
-          });
-=======
         return res.status(400).json({ error: "Korisnik s tim emailom ili korisničkim imenom već postoji" });
->>>>>>> refs/remotes/origin/main
       }
 
       // Hashiraj lozinku
@@ -105,26 +84,16 @@ router.post('/', (req, res) => {
               return res.status(500).json({ error: "Greška na serveru" });
             }
 
-<<<<<<< HEAD
-            res.status(201).json({
-              id: insertResults.insertId,
-=======
             res.status(201).json({ 
               id: insertResults.insertId, 
->>>>>>> refs/remotes/origin/main
               message: "Korisnik uspješno stvoren",
               korisnik: {
                 sifra_korisnika: insertResults.insertId,
                 ime_korisnika,
                 prezime_korisnika,
                 email_korisnika,
-<<<<<<< HEAD
-                korisnicko_ime,
-              },
-=======
                 korisnicko_ime
               }
->>>>>>> refs/remotes/origin/main
             });
           }
         );
@@ -143,19 +112,6 @@ router.put("/:id", isAuthenticated, (req, res) => {
     lozinka,
   } = req.body;
 
-<<<<<<< HEAD
-=======
-router.put('/:id', isAuthenticated, (req, res) => {
-  const {
-    ime_korisnika,
-    prezime_korisnika,
-    broj_telefona_korisnika,
-    email_korisnika,
-    korisnicko_ime,
-    lozinka,
-  } = req.body;
-
->>>>>>> refs/remotes/origin/main
   if (
     !ime_korisnika ||
     !prezime_korisnika ||
@@ -170,13 +126,7 @@ router.put('/:id', isAuthenticated, (req, res) => {
     bcrypt.hash(lozinka, 10, (hashErr, hashedPassword) => {
       if (hashErr) {
         console.error(hashErr);
-<<<<<<< HEAD
-        return res
-          .status(500)
-          .json({ error: "Greška prilikom hashiranja lozinke" });
-=======
         return res.status(500).json({ error: "Greška prilikom hashiranja lozinke" });
->>>>>>> refs/remotes/origin/main
       }
 
       const updateData = {
@@ -185,19 +135,6 @@ router.put('/:id', isAuthenticated, (req, res) => {
         broj_telefona_korisnika: broj_telefona_korisnika || null,
         email_korisnika,
         korisnicko_ime,
-<<<<<<< HEAD
-        lozinka: hashedPassword,
-      };
-
-      connection.query(
-        "UPDATE korisnik SET ? WHERE sifra_korisnika = ?",
-        [updateData, req.params.id],
-        (err) => {
-          if (err) return res.status(500).json({ error: err.message });
-          res.json({ id: req.params.id, message: "Korisnik ažuriran" });
-        }
-      );
-=======
         lozinka: hashedPassword
       };
 
@@ -205,7 +142,6 @@ router.put('/:id', isAuthenticated, (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ id: req.params.id, message: "Korisnik ažuriran" });
       });
->>>>>>> refs/remotes/origin/main
     });
   } else {
     // Ažuriraj bez lozinke
@@ -214,19 +150,6 @@ router.put('/:id', isAuthenticated, (req, res) => {
       prezime_korisnika,
       broj_telefona_korisnika: broj_telefona_korisnika || null,
       email_korisnika,
-<<<<<<< HEAD
-      korisnicko_ime,
-    };
-
-    connection.query(
-      "UPDATE korisnik SET ? WHERE sifra_korisnika = ?",
-      [updateData, req.params.id],
-      (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: req.params.id, message: "Korisnik ažuriran" });
-      }
-    );
-=======
       korisnicko_ime
     };
 
@@ -234,7 +157,6 @@ router.put('/:id', isAuthenticated, (req, res) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ id: req.params.id, message: "Korisnik ažuriran" });
     });
->>>>>>> refs/remotes/origin/main
   }
 });
 
