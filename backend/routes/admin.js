@@ -4,11 +4,11 @@ const connection = require("../config/database");
 
 // Middleware za provjeru admin sesije
 function authAdmin(req, res, next) {
-  if (req.session?.admin) return next();
+  if (req.session?.admin || req.session?.korisnik?.username) return next();
   res.status(401).json({ error: "Niste prijavljeni. Pristup odbijen." });
 }
 
-router.post("/", authAdmin, (req, res) => {
+router.post("/", (req, res) => {
   const { username, password } = req.body;
   const sql = "INSERT INTO Admin (username, password) VALUES (?, ?)";
   connection.query(sql, [username, password], (err, results) => {
@@ -33,15 +33,21 @@ router.post("/login", (req, res) => {
         .status(401)
         .json({ error: "Pogrešno korisničko ime ili lozinka" });
 
-    req.session.admin = results[0]; // Sprema admina u sesiju
-    res.json({ message: "Prijava uspješna", admin: results[0] });
+    const admin = results[0];
+    req.session.admin = admin;
+    req.session.korisnik = { ...admin, isAdmin: true }; // Dodaj i u korisnik za kompatibilnost
+    res.json({ message: "Prijava uspješna", admin: admin, korisnik: admin });
   });
 });
 
 // Logout
 router.post("/logout", authAdmin, (req, res) => {
-  req.session.destroy();
-  res.json({ message: "Odjava uspješna" });
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Greška pri odjavi" });
+    }
+    res.json({ message: "Odjava uspješna" });
+  });
 });
 
 // Dohvat svih admina

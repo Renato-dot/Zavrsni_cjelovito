@@ -29,8 +29,12 @@ export const useAuthStore = defineStore("auth", () => {
 
       const response = await api.post(endpoint, payload);
 
-      user.value =
-        response.data.korisnik || response.data.user || response.data;
+      if (credentials.isAdmin) {
+        user.value = response.data.admin || response.data.korisnik || response.data;
+        user.value.isAdmin = true;
+      } else {
+        user.value = response.data.korisnik || response.data.user || response.data;
+      }
 
       if (user.value) {
         localStorage.setItem("user", JSON.stringify(user.value));
